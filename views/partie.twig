@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Partie
+	</title>
+	<style>
+		body {
+			font-family: Arial, sans-serif;
+			margin: 0 auto;
+			padding: 15px;
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+		}
+
+		.partie {
+			display: flex;
+			gap: 4px;
+			align-items: center;
+			margin-top: 8px;
+
+		}
+
+		.input {
+			outline: none;
+			border: 1px solid gray;
+			border-radius: 5px;
+			padding: 8px;
+			width: 200px;
+		}
+
+		.btns {
+			display: flex;
+			gap: 4px;
+			align-items: center;
+			margin-top: 8px;
+			cursor: pointer;
+
+		}
+
+		#partie_div {
+			margin-top: 15px;
+		}
+
+		#joueur_div {
+			margin-top: 15px;
+		}
+
+		.show-parties {
+			padding: 15px;
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			gap: 16px;
+		}
+	</style>
+</head>
+
+<body>
+	<div class="partie" id="nom_partie">
+		<span>Nom Partie:</span>
+		<input type="text" class="input" id="nom_partie_input" />
+	</div>
+	<div class="partie">
+		<span>ID joueur 1:</span>
+		<input type="text" class="input" id="id_joueur1" />
+	</div>
+	<div class="partie">
+		<span>ID joueur 2:</span>
+		<input type="text" class="input" id="id_joueur2" />
+	</div>
+
+	<div class="btns">
+		<button id="envoyer">Envoyer</button>
+		<button id="afficher">Afficher stats</button>
+	</div>
+	<div id="partie_div"></div>
+	<div id="stats_div">
+	</div>
+
+	<script src="/socket.io/socket.io.js"></script>
+	<script src="https://momentjs.com/downloads/moment.min.js"></script>
+
+	<script>
+		const socket = io();
+
+		const nameInput = document.getElementById('nom_partie_input');
+		const joueur_1Input = document.getElementById('id_joueur1');
+		const joueur_2Input = document.getElementById('id_joueur2');
+		const envoyer = document.getElementById('envoyer');
+		const afficher = document.getElementById('afficher');
+		const partie_div = document.getElementById('partie_div');
+		const stats_div = document.getElementById('stats_div');
+
+		const appendPartie = (partie) => {
+			const partieElement = document.createElement('div');
+			partieElement.innerHTML =
+				`<div class='show-parties' >
+					<div>
+					Partie:	${partie.nom}
+					</div>
+				    <div>
+					Joueur1: ${partie.joueur_1}
+					</div>
+					<div>
+					Joueur2:${partie.joueur_2}
+					</div>
+				</div>`
+			partie_div.appendChild(partieElement);
+			partie_div.scrollTop = partieElement.scrollHeight;
+		};
+
+		const appendStats = (stats) => {
+			const statsElement = document.createElement('div');
+			statsElement.innerHTML =
+				`<div class='show-parties' >
+				
+					<div>
+						Nom: ${stats.nom}
+					</div>
+					<div>
+						Joueur1: ${stats.joueur_1.pseudo}, ${stats.joueur_1._id}
+					</div>
+					<div>
+						Score: ${stats.joueur_1.score}
+					</div>
+					<div>
+						Sante: ${stats.joueur_1.sante}
+					</div>
+					<div>
+						Joueur2: ${stats.joueur_2.pseudo}, ${stats.joueur_2._id}
+					</div>
+					<div>
+						Score: ${stats.joueur_2.score}
+					</div>
+					<div>
+						Sante: ${stats.joueur_2.sante}
+					</div>
+				</div>`
+			stats_div.appendChild(statsElement);
+			stats_div.scrollTop = statsElement.scrollHeight;
+		};
+
+		envoyer.addEventListener('click', () => {
+			const nom = nameInput.value;
+			const joueur_1 = joueur_1Input.value;
+			const joueur_2 = joueur_2Input.value;
+			if (!nom.trim()) {
+				alert('missing name')
+				return
+			}
+			if (!joueur_1.trim()) {
+				alert('missing joueur_1')
+				return
+			} if (!joueur_2.trim()) {
+				alert('missing joueur_2')
+				return
+			}
+
+			socket.emit('envoyer', { nom, joueur_1, joueur_2 });
+			nameInput.value = '';
+			joueur_1Input.value = '';
+			joueur_2Input.value = '';
+
+		});
+		// socket.on('allParties', (parties) => {
+		// 	console.log('parties', parties);
+
+		// 	parties.forEach((partie) => {
+		// 		appendPartie(partie);
+		// 	});
+		// });
+		socket.on('envoyer', (partie) => {
+			appendPartie(partie);
+		});
+		afficher.addEventListener("click", async () => {
+			socket.emit('stats')
+
+			socket.on('stats', (stats) => {
+				stats_div.textContent = "Stats:"
+
+				stats.forEach((stat) => {
+					appendStats(stat);
+				});
+			});
+		})
+
+	</script>
+</body>
+
+</html>
