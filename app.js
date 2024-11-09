@@ -7,6 +7,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { Server } from 'socket.io';
 import Partie from './modules/partie/models/partie.model.js';
+import { attaque } from './modules/joueur/services/joueur.service.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -39,6 +40,8 @@ io.on('connection', async (socket) => {
     }
 
     socket.on('envoyer', async (data) => {
+        const { joueur_1, joueur_2 } = data;
+        await attaque(joueur_1, joueur_2);
         const partie = new Partie(data);
         const savedPartie = await partie.save();
         io.emit('envoyer', savedPartie);

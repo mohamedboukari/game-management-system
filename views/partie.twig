@@ -56,6 +56,12 @@
 			align-items: center;
 			gap: 16px;
 		}
+
+		.bar {
+			height: 20px;
+			width: 200px;
+			background: #000;
+		}
 	</style>
 </head>
 
@@ -139,6 +145,7 @@
 					<div>
 						Sante: ${stats.joueur_2.sante}
 					</div>
+					<div class='bar'></div>
 				</div>`
 			stats_div.appendChild(statsElement);
 			stats_div.scrollTop = statsElement.scrollHeight;
@@ -181,10 +188,11 @@
 
 			socket.on('stats', (stats) => {
 				stats_div.textContent = "Stats:"
+				appendStats(stats[stats.length - 1]);
 
-				stats.forEach((stat) => {
-					appendStats(stat);
-				});
+				// stats.forEach((stat) => {
+				// 	appendStats(stat);
+				// });
 			});
 		})
 
