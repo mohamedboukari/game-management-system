@@ -6,12 +6,12 @@ const PartieSchema = new Schema(
     {
         nom: { type: String, required: true },
         joueur_1: {
-            type: mongoose.Schema.Types.ObjectId,
+            type: String,
             ref: 'Joueur',
             required: true,
         },
         joueur_2: {
-            type: mongoose.Schema.Types.ObjectId,
+            type: String,
             ref: 'Joueur',
             required: true,
         },

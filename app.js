@@ -48,7 +48,6 @@ io.on('connection', async (socket) => {
             const parties = await Partie.find()
                 .populate('joueur_1 joueur_2')
                 .lean();
-            console.log('parties', parties);
 
             socket.emit('stats', parties);
         } catch (err) {
